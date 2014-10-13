@@ -43,6 +43,15 @@
  */
 
 /**
+ * Added support for mGet
+ *
+ * @see https://github.com/nicolasff/phpredis#mget-getmultiple
+ *
+ * @category Zend
+ * @author Sergey Shilko <contact@sshilko.com>
+ */
+
+/**
  * @see Zend_Cache_Backend_Interface
  */
 require_once 'Zend/Cache/Backend/ExtendedInterface.php';
@@ -138,17 +147,21 @@ class Extended_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Ca
     /**
      * Test if a cache is available for the given id and (if yes) return it (false else)
      *
-     * @param string $id cache id
+     * @param array $ids cache ids
      * @param boolean $doNotTestCacheValidity if set to true, the cache validity won't be tested
      * @return string|false cached datas
      */
-    public function load($id, $doNotTestCacheValidity = false)
+    public function load($ids, $doNotTestCacheValidity = false)
     {
-        if (!($this->_test($id, $doNotTestCacheValidity))) {
-            // The cache is not hit !
-            return false;
+        if (!is_array($ids)) {
+            if (!($this->_test($ids, $doNotTestCacheValidity))) {
+                // The cache is not hit !
+                return false;
+            }
+            $data = $this->_load($ids);
+        } else {
+            $data = $this->_mload($ids);
         }
-        $data = $this->_load($id);
         return $data;
     }
 
@@ -612,6 +625,35 @@ class Extended_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Ca
             return false;
 
         return $this->_redis->get($this->_keyFromId($id));
+    }
+
+    /**
+     * Get the values of all the specified keys.
+     * If one or more keys dont exist, the array will contain FALSE at the position of the key.
+     *
+     * @param array $ids cache id
+     * @see https://github.com/nicolasff/phpredis#mget-getmultiple
+     * @return array cached data
+     */
+    protected function _mload($ids)
+    {
+        if (!$this->_redis) {
+            return false;
+        }
+
+        $keymap = array();
+        for ($i=0; $i<count($ids); $i++) {
+            $keymap[$i] = $this->_keyFromId($ids[$i]);
+        }
+
+        $vals = $this->_redis->mGet($keymap);
+
+        $result = array();
+        for ($i=0; $i<count($ids); $i++) {
+            $result[$ids[$i]] = $vals[$i];
+        }
+
+        return $result;
     }
 
     /**
