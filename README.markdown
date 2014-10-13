@@ -38,27 +38,32 @@ resources.cachemanager.redis2.frontendBackendAutoload = true
 
 </pre>
 
+Somewhere in your bootstrap
 <pre>
-//Somewhere in your bootstrap
     protected function _initCaches() {
         $this->bootstrap('cachemanager');
         Zend_Registry::set('cachemanager', $this->getPluginResource('cachemanager')->getCacheManager());
     }
 </pre>
 
+Somewhere where u need cache
+
 <pre>
-//somwehere where u need cache
 Zend_Registry::get('cachemanager')->getCache('redis2');
 $cacheBackend = $cache->getBackend();
+
 //use backend to fetch multiple values
 $cachedRows = $cacheBackend->load(array('1', '2', '3'));
+
 //...
+
 //use frontend (core) to save single values as usual
 $cache->save('1', 'newval');
 </pre>
 
-<pre>
+Original initialization
 
+<pre>
 
 $redisCache = Zend_Cache::factory(
     new Zend_Cache_Core(array(
