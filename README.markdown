@@ -10,7 +10,8 @@ Start with installing the phpredis PHP extension available at https://github.com
 Set up the Redis cache backend by invoking the following code somewhere in your project.
 
 ZF1 application ini setup
-<pre>
+
+```
 ;Redis Extension-Based Cache -->
 ; @see https://github.com/nicolasff/phpredis
 ; @see https://github.com/kalaspuff/redis-cache-zend-framework
@@ -36,15 +37,16 @@ resources.cachemanager.redis2.backend.customBackendNaming = true
 resources.cachemanager.redis2.frontendBackendAutoload = true
 ;Redis Extension-Based Cache <--
 
-</pre>
+```
 
 Somewhere in your bootstrap
-<pre>
+
+```
     protected function _initCaches() {
         $this->bootstrap('cachemanager');
         Zend_Registry::set('cachemanager', $this->getPluginResource('cachemanager')->getCacheManager());
     }
-</pre>
+```
 
 Somewhere where u need cache
 
