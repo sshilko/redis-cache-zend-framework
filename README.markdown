@@ -1,8 +1,8 @@
-Redis cache backend for Zend Framework by Carl Oscar Aaro
-=============
+## Redis cache backend by Carl [Oscar Aaro](https://github.com/kalaspuff/redis-cache-zend-framework)
 
-Modified to support Redis MGET command (fetching multiple keys in one request)
-=============
+### Additional modified for
+* Redis MGET command (fetching multiple keys in one request)
+* Redis MSET command (saving multiple keys in one request, w/o tags support)
 
 Requires the phpredis extension for PHP to enable PHP to communicate with the [Redis](http://redis.io/) key-value store.
 Start with installing the phpredis PHP extension available at https://github.com/nicolasff/phpredis
@@ -61,6 +61,15 @@ $cachedRows = $cacheBackend->load(array('1', '2', '3'));
 
 //use frontend (core) to save single values as usual
 $cache->save('1', 'newval');
+
+//...
+
+$results = array('Foo' => 'Bar', 'Hello' => 'World');
+
+//use backend to save multiple values
+$cacheBackend->msave($results);
+
+$cachedResults = $cacheBackend->load(array('Foo', 'Hello'));
 </pre>
 
 Original initialization
