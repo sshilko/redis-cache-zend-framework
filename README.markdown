@@ -1,4 +1,4 @@
-## Redis cache backend by Carl [Oscar Aaro](https://github.com/kalaspuff/redis-cache-zend-framework)
+## Redis cache backend by [Carl Oscar Aaro](https://github.com/kalaspuff/redis-cache-zend-framework)
 
 ### Additional modified for
 * Redis MGET command (fetching multiple keys in one request)
