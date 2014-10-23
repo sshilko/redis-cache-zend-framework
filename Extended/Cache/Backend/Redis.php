@@ -198,6 +198,41 @@ class Extended_Cache_Backend_Redis extends Zend_Cache_Backend implements Zend_Ca
     }
 
     /**
+     * @param  array  $data             array(key => value) $array Pairs: array(key => value, ...)
+     * @param  int    $specificLifetime If != false, set a specific lifetime for this cache record (null => infinite lifetime)
+     */
+    public function msave($data, $specificLifetime = false)
+    {
+        if (!$this->_redis) {
+            return false;
+        }
+
+        $lifetime = $this->getLifetime($specificLifetime);
+
+        $hashmap = array();
+        foreach ($data as $dk => $dv) {
+            $hashmap[$this->_keyFromId($dk)] = $dv;
+        }
+        unset($data);
+
+        if ($lifetime === null) {
+            $return = $this->_redis->mset($hashmap);
+        } else {
+            $this->transactionBegin();
+            $this->_redis->mset($hashmap);
+            foreach ($hashmap as $hk => $hv) {
+                $this->_redis->setTimeout($hk, $lifetime);
+            }
+            $return = $this->transactionEnd();
+            /**
+             *  Expect all operations to return [boolean] true
+             */
+            $return = (array(true) == array_unique($return));
+        }
+        return $return;
+    }
+
+    /**
      * Save some string datas into a cache record
      *
      * Note : $data is always "string" (serialization is done by the
